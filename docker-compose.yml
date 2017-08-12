@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  lam:
+    image: computersciencehouse/ldap-account-manager
+    build: .
+    restart: always
+    ports:
+      - 8080:8080
+
