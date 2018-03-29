@@ -1,7 +1,7 @@
 FROM php:7.1-apache
 MAINTAINER Computer Science House
 
-ENV LAM_VERSION=6.0.1
+ENV LAM_VERSION=6.3
 ENV LAM_USER=lam
 ENV LAM_DIR=/var/www/html
 
@@ -42,4 +42,3 @@ RUN set -ex \
 EXPOSE 8080
 WORKDIR ${LAM_DIR}
 USER ${LAM_USER}
-
