@@ -1,12 +1,12 @@
-FROM php:7.1-apache
+FROM php:7.2-apache
 MAINTAINER Computer Science House
 
-ENV LAM_VERSION=6.3
+ENV LAM_VERSION=6.5
 ENV LAM_USER=lam
 ENV LAM_DIR=/var/www/html
 
 # Install dependencies and configure Apache
-RUN BUILD_DEPENDENCIES="libmagickwand-dev libfreetype6-dev libjpeg62-turbo-dev libmcrypt-dev libpng12-dev libldb-dev libldap2-dev libcurl4-openssl-dev" \
+RUN BUILD_DEPENDENCIES="libmagickwand-dev libfreetype6-dev libjpeg62-turbo-dev libmcrypt-dev libpng-dev libldb-dev libldap2-dev libcurl4-openssl-dev" \
     set -ex \
       && apt-get update \
       && apt-get install -y --force-yes --no-install-recommends ${BUILD_DEPENDENCIES} \
