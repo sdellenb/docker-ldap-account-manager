@@ -1,9 +1,17 @@
 FROM php:7.2-apache
-MAINTAINER Computer Science House
+MAINTAINER Simon Dellenbach <sdellenb@gmail.com>
 
-ENV LAM_VERSION=6.5
-ENV LAM_USER=lam
+ARG LAM_VERSION=6.5
+ARG LAM_USER=lam
+ARG LAM_USER_GID
+ARG LAM_USER_UID
 ENV LAM_DIR=/var/www/html
+
+# Add user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
+# If explicit uid or gid is given, use it.
+RUN set -ex \
+      && if [ -z "${LAM_USER_GID}" ]; then groupadd ${LAM_USER}; else groupadd -g ${LAM_USER_GID} ${LAM_USER}; fi \
+      && if [ -z "${LAM_USER_UID}" ]; then useradd -M -d ${LAM_DIR} -g ${LAM_USER} ${LAM_USER}; else useradd -M -d ${LAM_DIR} -g ${LAM_USER} -u ${LAM_USER_UID} ${LAM_USER}; fi
 
 # Install dependencies and configure Apache
 RUN BUILD_DEPENDENCIES="libmagickwand-dev libfreetype6-dev libjpeg62-turbo-dev libmcrypt-dev libpng-dev libldb-dev libldap2-dev libcurl4-openssl-dev" \
@@ -21,12 +29,13 @@ RUN BUILD_DEPENDENCIES="libmagickwand-dev libfreetype6-dev libjpeg62-turbo-dev l
       && docker-php-ext-enable imagick \
       && sed -ie "s/\(\*:80\)/\180/g" /etc/apache2/sites-available/000-default.conf \
       && sed -ie "s/\(Listen 80\)/\180/g" /etc/apache2/ports.conf \
+      && echo "ServerName localhost" | tee /etc/apache2/conf-available/servername.conf \
+      && a2enconf servername \
       && mkdir -p /var/lock/apache2 /var/run/apache2 \
       && chmod og+rwx /var/lock/apache2 /var/run/apache2
 
 # Install LDAP Account Manager
 RUN set -ex \
-      && useradd -M -d ${LAM_DIR} ${LAM_USER} \
       && cd /tmp \
       && curl -o lam-${LAM_VERSION}.tar.bz2 -fsSL "https://sourceforge.net/projects/lam/files/LAM/${LAM_VERSION}/ldap-account-manager-${LAM_VERSION}.tar.bz2/download" \
       && tar -xjf lam-${LAM_VERSION}.tar.bz2 \
